@@ -4,10 +4,84 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="theme-color" content="#08090B" />
+
+    <!-- SEO & Metadata -->
+    <title>TreadTrace | F1 Tyre Intelligence &amp; Digital Twin</title>
+    <meta
+      name="description"
+      content="TreadTrace isolates inferred tyre-related performance degradation from confounding motorsport variables including race-progress fuel proxies, track evolution, and traffic, featuring a 4-wheel digital twin and temporal holdout validation on 2022–2025 F1 telemetry."
+    />
+    <link rel="canonical" href="https://treadtrace-frontend-ucqc.onrender.com/" />
+
+    <!-- Open Graph / Social Metadata -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://treadtrace-frontend-ucqc.onrender.com/" />
+    <meta property="og:title" content="TreadTrace | F1 Tyre Intelligence &amp; Digital Twin" />
+    <meta
+      property="og:description"
+      content="Isolating inferred tyre-related performance degradation from race-progress fuel proxies, track evolution, and traffic variables."
+    />
+    <meta property="og:image" content="/images/treadtrace_logo.png" />
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TreadTrace | F1 Tyre Intelligence &amp; Digital Twin" />
+    <meta
+      name="twitter:description"
+      content="Isolating inferred tyre-related performance degradation from race-progress fuel proxies, track evolution, and traffic variables."
+    />
+    <meta name="twitter:image" content="/images/treadtrace_logo.png" />
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="margin:0;background-color:#08090B;">
+    <div id="root">
+      <!-- Static Crawler / Initial Content (replaced when React mounts) -->
+      <div style="background:#08090B;color:#9A9FA8;min-height:100vh;padding:2rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:1200px;margin:0 auto;box-sizing:border-box;">
+        <header style="border-bottom:1px solid #222733;padding-bottom:1rem;margin-bottom:2rem;">
+          <h1 style="color:#FFFFFF;font-size:1.75rem;margin:0 0 0.5rem 0;letter-spacing:-0.02em;">
+            TreadTrace <span style="color:#E10600;">F1-SPEC AI</span>
+          </h1>
+          <p style="color:#FF2A1A;font-weight:600;font-size:0.875rem;text-transform:uppercase;margin:0;letter-spacing:0.05em;">
+            Tyre Intelligence &amp; 4-Wheel Digital Twin Platform
+          </p>
+        </header>
+
+        <main>
+          <section style="margin-bottom:2rem;">
+            <h2 style="color:#FFFFFF;font-size:1.25rem;margin-bottom:0.5rem;">AI Motorsport Intelligence</h2>
+            <p style="line-height:1.6;margin-bottom:1rem;">
+              TreadTrace isolates true, inferred tyre-related performance degradation from confounding motorsport practice and race variables. In competitive motorsport telemetry, naive lap time regression conflates tyre decay with vehicle mass loss, track grip progression, and traffic disruptions.
+            </p>
+            <p style="line-height:1.6;margin-bottom:1rem;">
+              By explicitly separating tyre effects from race-progress fuel proxies, ambient and track evolution, and traffic classification, TreadTrace exposes true compound decay dynamics without relying on intrusive or unavailable physical rubber wear measurements.
+            </p>
+          </section>
+
+          <section style="margin-bottom:2rem;">
+            <h2 style="color:#FFFFFF;font-size:1.25rem;margin-bottom:0.5rem;">Methodology, 2022–2025 F1 Data &amp; Temporal Holdout</h2>
+            <p style="line-height:1.6;margin-bottom:1rem;">
+              TreadTrace is calibrated and evaluated on 2022–2025 Formula 1 timing and telemetry data, with 2025 held out as a strict temporal holdout benchmark. This ensures the confounder isolation algorithms and robust Huber regression formulations generalize reliably across seasons, circuits, and evolving aerodynamic regulations without data leakage.
+            </p>
+          </section>
+
+          <section style="margin-bottom:2rem;">
+            <h2 style="color:#FFFFFF;font-size:1.25rem;margin-bottom:0.5rem;">Core Analytical Modules</h2>
+            <ul style="line-height:1.8;padding-left:1.5rem;">
+              <li><strong>4-Wheel Digital Twin:</strong> Stateful per-corner digital twin tracking thermal accumulation cycles, inferred wear states, and remaining useful life (RUL) projections.</li>
+              <li><strong>Degradation Analysis:</strong> Confounder-aware robust regression separating tyre degradation curves from lap-to-lap noise and race-progress fuel proxies.</li>
+              <li><strong>Tyre Memory:</strong> Closed-loop Bayesian calibration storing cross-session compound baselines and historical decay rates.</li>
+              <li><strong>Forward Prediction:</strong> Stint simulation forecasting compound crossover laps and strategy windows under varying track temperature scenarios.</li>
+              <li><strong>Validation &amp; Root-Cause Attribution:</strong> Post-session comparison quantifying error reduction against naive models and explaining real-world performance variance.</li>
+              <li><strong>AI Evidence:</strong> Explainable telemetry decomposition and mathematical audit trails supporting race engineering decisions.</li>
+            </ul>
+          </section>
+        </main>
+
+        <footer style="border-top:1px solid #222733;padding-top:1rem;font-size:0.75rem;color:#606775;">
+          <p>TreadTrace Telemetry Platform &bull; Model-Driven Analysis &bull; Closed-Loop Digital Twin</p>
+        </footer>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
