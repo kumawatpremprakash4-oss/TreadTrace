@@ -28,6 +28,7 @@ import {
   fetchDegradationAnalysis,
   fetchTyreTwins,
   fetchRaceValidation,
+  uploadSession,
 } from "./services/api";
 
 import {
@@ -57,16 +58,16 @@ export function App() {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const loadData = async () => {
+  const loadData = async (targetSessionId?: string) => {
     try {
       setLoading(true);
       const sessions = await fetchSessions();
-      const defaultId = sessions[0]?.session_id || "FP2-SILVERSTONE-2026";
+      const activeId = targetSessionId || sessions[0]?.session_id || "FP2-SILVERSTONE-2026";
 
       const [sessDetails, confData, degData, twins, valData] = await Promise.all([
-        fetchSessionDetails(defaultId),
-        fetchConfounderAnalysis(defaultId),
-        fetchDegradationAnalysis(defaultId),
+        fetchSessionDetails(activeId),
+        fetchConfounderAnalysis(activeId),
+        fetchDegradationAnalysis(activeId),
         fetchTyreTwins(),
         fetchRaceValidation("RACE-SILVERSTONE-2026"),
       ]);
@@ -105,19 +106,16 @@ export function App() {
   };
 
   const handleUploadSession = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const res = await fetch("/api/sessions/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Failed to upload session");
-      await loadData();
-      alert("Custom telemetry session uploaded and analyzed successfully!");
+      setLoading(true);
+      const result = await uploadSession(file);
+      await loadData(result.session_id);
+      alert(`Custom telemetry session ${result.session_id} uploaded and analyzed successfully! (${result.total_laps} laps ingested)`);
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Error uploading session file.");
+      alert("Error uploading session file. Please ensure file is valid CSV or JSON.");
+    } finally {
+      setLoading(false);
     }
   };
 

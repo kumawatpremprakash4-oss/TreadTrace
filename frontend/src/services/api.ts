@@ -15,17 +15,65 @@ import {
   CornerDetailResponse,
 } from "../types";
 
-// Production Render API base: reads VITE_API_URL or defaults to local proxy "/api"
-let configuredApiUrl = (import.meta.env.VITE_API_URL || "").trim();
-if (configuredApiUrl) {
-  if (!configuredApiUrl.startsWith("http://") && !configuredApiUrl.startsWith("https://")) {
-    configuredApiUrl = `https://${configuredApiUrl}`;
+/**
+ * Production-Safe API Base Configuration:
+ * 1. Checks VITE_API_BASE_URL (preferred) or VITE_API_URL.
+ * 2. If present, normalizes protocol and ensures '/api' suffix (avoiding double '/api/api').
+ * 3. In production mode (import.meta.env.PROD), falls back to the live backend:
+ *    "https://treadtrace-api.onrender.com/api"
+ * 4. In development mode (import.meta.env.DEV), defaults to "/api" (proxied via Vite).
+ */
+function resolveApiBase(): string {
+  const envUrl = (
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_API_URL ||
+    ""
+  ).trim();
+
+  if (envUrl) {
+    let clean = envUrl;
+    if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
+      clean = `https://${clean}`;
+    }
+    clean = clean.replace(/\/+$/, "");
+    if (!clean.endsWith("/api")) {
+      clean = `${clean}/api`;
+    }
+    return clean;
   }
-  if (!configuredApiUrl.endsWith("/api")) {
-    configuredApiUrl = `${configuredApiUrl.replace(/\/+$/, "")}/api`;
+
+  if (import.meta.env.PROD) {
+    return "https://treadtrace-api.onrender.com/api";
   }
+
+  return "/api";
 }
-const API_BASE = configuredApiUrl || "/api";
+
+export const API_BASE = resolveApiBase();
+
+export interface UploadSessionResponse {
+  session_id: string;
+  total_laps: number;
+  valid_laps: number;
+  message: string;
+}
+
+export async function uploadSession(file: File): Promise<UploadSessionResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/sessions/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "");
+    throw new Error(`Upload failed (${res.status}): ${errorText || res.statusText}`);
+  }
+
+  return res.json();
+}
 
 export async function fetchSessions(): Promise<SessionMeta[]> {
   const res = await fetch(`${API_BASE}/sessions`);

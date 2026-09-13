@@ -29,12 +29,15 @@ app = FastAPI(
     description="Isolating true tyre degradation from confounding motorsport practice variables.",
 )
 
-# Configure CORS: defaults to ["*"] for development, or reads comma-separated origins in production
+# Configure CORS: defaults to ["*"] for development, or allows production frontend and configured origins
 cors_origins_env = os.getenv("CORS_ORIGINS", "*").strip()
 if cors_origins_env == "*":
     cors_origins = ["*"]
 else:
-    cors_origins = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
+    allowed_list = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
+    if "https://treadtrace-frontend-ucqc.onrender.com" not in allowed_list:
+        allowed_list.append("https://treadtrace-frontend-ucqc.onrender.com")
+    cors_origins = allowed_list
 
 app.add_middleware(
     CORSMiddleware,
@@ -311,28 +314,39 @@ async def upload_session(file: UploadFile = File(...)):
     laps = []
     if filename.endswith(".json"):
         data = json.loads(content.decode("utf-8"))
+        raw_laps = []
         if isinstance(data, dict) and "laps" in data:
-            laps = data["laps"]
+            raw_laps = data["laps"]
         elif isinstance(data, list):
-            laps = data
+            raw_laps = data
+        for l in raw_laps:
+            item = dict(l)
+            if "tyre_age" not in item:
+                item["tyre_age"] = int(item.get("stint_lap", 1))
+            laps.append(item)
     elif filename.endswith(".csv"):
         text_stream = io.StringIO(content.decode("utf-8"))
         reader = csv.DictReader(text_stream)
         for row in reader:
+            stint_lap = int(row.get("stint_lap", 1))
             laps.append({
                 "lap_number": int(row.get("lap_number", 1)),
                 "stint_id": int(row.get("stint_id", 1)),
-                "stint_lap": int(row.get("stint_lap", 1)),
+                "stint_lap": stint_lap,
+                "tyre_age": int(row.get("tyre_age", stint_lap)),
                 "compound": row.get("compound", "MEDIUM").upper(),
                 "lap_time": float(row.get("lap_time", 90.0)),
                 "fuel_load": float(row.get("fuel_load", 30.0)),
                 "track_temperature": float(row.get("track_temperature", 38.0)),
                 "traffic_level": int(row.get("traffic_level", 0)),
-                "clean_air": row.get("clean_air", "true").lower() == "true",
-                "yellow_flag": row.get("yellow_flag", "false").lower() == "true",
+                "clean_air": str(row.get("clean_air", "true")).lower() == "true",
+                "yellow_flag": str(row.get("yellow_flag", "false")).lower() == "true",
             })
     else:
         raise HTTPException(status_code=400, detail="Only .csv and .json files supported.")
+
+    if not laps:
+        raise HTTPException(status_code=400, detail="No telemetry laps found in uploaded file.")
 
     classified = classify_session_laps(laps)
     new_id = f"UPLOAD-{len(SESSION_STORE) + 1}"
