@@ -1,0 +1,70 @@
+{
+  "dataset_name": "FastF1 2022-2025 Grand Prix Race Cache",
+  "dataset_source": "data tread trace.zip",
+  "training_date_utc": null,
+  "total_raw_laps": 25194,
+  "valid_training_laps": 20333,
+  "seasons_used": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "races_used_count": 23,
+  "circuits_used_count": 8,
+  "circuits_list": [
+    "Catalunya",
+    "Jeddah",
+    "Melbourne",
+    "Monza",
+    "Sakhir",
+    "Shanghai",
+    "Spielberg",
+    "Suzuka"
+  ],
+  "drivers_count": 32,
+  "model_type": "TreadTrace Confounder-Aware Huber Robust Regression",
+  "compounds_trained": [
+    "SOFT",
+    "MEDIUM",
+    "HARD"
+  ],
+  "compound_wear_rates_sec_per_lap": {
+    "SOFT": 0.0769,
+    "MEDIUM": 0.063,
+    "HARD": 0.0486
+  },
+  "splits": {
+    "train": {
+      "seasons": [
+        "2022",
+        "2023"
+      ],
+      "laps": 8741
+    },
+    "validation": {
+      "seasons": [
+        "2024"
+      ],
+      "laps": 5050
+    },
+    "test": {
+      "seasons": [
+        "2025"
+      ],
+      "laps": 6542
+    }
+  },
+  "metrics": {
+    "train_mae": 0.5317,
+    "validation_mae": 0.5055,
+    "test_mae": 0.5018,
+    "test_rmse": 0.6793,
+    "test_r2": 0.129
+  },
+  "known_limitations": [
+    "FastF1 cache provides session-level telemetry and timing; per-wheel temperatures and pressures are not in FIA public feeds and are physics-estimated.",
+    "Fuel loads are physics-modelled using FIA maximum race fuel regulations (105kg starting fuel) and empirical burn rates rather than direct telemetry telemetry flow sensor records.",
+    "Intermediate and Full Wet laps are intentionally filtered out to maintain dry-slick compound physical baseline integrity."
+  ]
+}

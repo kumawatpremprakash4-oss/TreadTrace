@@ -1,0 +1,926 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-void: #08090b;
+    --bg-surface: #101216;
+    --bg-carbon: #15181e;
+    --bg-carbon-hover: #1c2029;
+    --border-tech: #222733;
+    --border-tech-bright: #363e4f;
+    --treadtrace-red: #e10600;
+    --hot-red: #ff2a1a;
+    --warning-amber: #ffb000;
+    --telemetry-cyan: #00e5ff;
+    --telemetry-green: #00e676;
+    --text-white: #f5f5f5;
+    --text-muted: #9a9fa8;
+    --text-dark: #606775;
+  }
+
+  body {
+    background-color: var(--bg-void);
+    background-image: 
+      radial-gradient(circle at 50% -10%, rgba(13, 31, 56, 0.45) 0%, transparent 60%),
+      radial-gradient(circle at 100% 100%, rgba(225, 6, 0, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.02) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-white);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* Subtle carbon fibre micro-texture */
+.bg-carbon-pattern {
+  background-color: #07080a;
+  background-image: 
+    radial-gradient(#1a202c 0.75px, transparent 0.75px),
+    radial-gradient(#1a202c 0.75px, #07080a 0.75px);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+}
+
+/* Telemetry Grid Background */
+.bg-telemetry-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(34, 39, 51, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 39, 51, 0.25) 1px, transparent 1px);
+}
+
+/* Telemetry Grid Forward Motion Flow */
+@keyframes telemetryGridFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 64px; }
+}
+
+.animate-grid-flow {
+  animation: telemetryGridFlow 2.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-grid-flow {
+    animation: none;
+  }
+}
+
+/* Ambient Moving Light Sweep */
+@keyframes ambientSweep {
+  0% { transform: translate(-20%, -10%) rotate(0deg); }
+  50% { transform: translate(15%, 5%) rotate(5deg); }
+  100% { transform: translate(-20%, -10%) rotate(0deg); }
+}
+
+.animate-ambient-sweep {
+  animation: ambientSweep 28s ease-in-out infinite;
+}
+
+/* Red Racing Accent Glow */
+.glow-red {
+  box-shadow: 0 0 25px -4px rgba(225, 6, 0, 0.45);
+}
+
+.glow-red-sm {
+  box-shadow: 0 0 12px -2px rgba(225, 6, 0, 0.4);
+}
+
+.glow-cyan-sm {
+  box-shadow: 0 0 12px -2px rgba(0, 229, 255, 0.4);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 14px rgba(255, 42, 26, 0.6);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.6);
+}
+
+/* Custom Telemetry Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #08090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #262c3a;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e10600;
+}
+
+/* Animated Ticker Marquee */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker 35s linear infinite;
+}
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Scanline effect for HUD monitors */
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+.scanline::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+  z-index: 20;
+  background-size: 100% 3px, 4px 100%;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Fast motorsport pulse */
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.95); }
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1.2s ease-in-out infinite;
+}
+
+/* ============================================================
+   RACETRACK TRANSITION & GEAR SHIFT ANIMATIONS
+   ============================================================ */
+
+/* Red & White Motorsport Rumble Kerbs */
+.rumble-kerb-top {
+  background: repeating-linear-gradient(
+    -45deg,
+    #e10600,
+    #e10600 28px,
+    #f5f5f5 28px,
+    #f5f5f5 56px
+  );
+  box-shadow: 0 4px 15px rgba(225, 6, 0, 0.4);
+}
+
+.rumble-kerb-bottom {
+  background: repeating-linear-gradient(
+    45deg,
+    #e10600,
+    #e10600 28px,
+    #f5f5f5 28px,
+    #f5f5f5 56px
+  );
+  box-shadow: 0 -4px 15px rgba(225, 6, 0, 0.4);
+}
+
+@keyframes kerbSpeed {
+  0% { background-position: 0 0; }
+  100% { background-position: -400px 0; }
+}
+
+.animate-kerb-fast {
+  animation: kerbSpeed 0.45s cubic-bezier(0.12, 0.8, 0.32, 1) infinite;
+}
+
+/* Cockpit Vibration on Gear Shift */
+@keyframes shiftVibration {
+  0% { transform: translate(0, 0) scale(1); }
+  15% { transform: translate(-2px, 2px) scale(1.008); }
+  30% { transform: translate(3px, -1px) scale(0.998); }
+  50% { transform: translate(-1px, 2px) scale(1.003); }
+  75% { transform: translate(2px, -2px) scale(1.001); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-shift-vibrate {
+  animation: shiftVibration 0.45s ease-out forwards;
+}
+
+/* Racetrack Speed Streaks */
+@keyframes speedStreak {
+  0% { transform: translateX(100%) scaleX(2); opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { transform: translateX(-100%) scaleX(3); opacity: 0; }
+}
+
+.animate-speed-streak-1 {
+  animation: speedStreak 0.35s ease-out forwards;
+}
+.animate-speed-streak-2 {
+  animation: speedStreak 0.42s ease-out 0.05s forwards;
+}
+.animate-speed-streak-3 {
+  animation: speedStreak 0.38s ease-out 0.02s forwards;
+}
+
+/* Flashing Shift LEDs */
+@keyframes ledShiftFlash {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px #ff2a1a); }
+}
+
+.animate-led-shift {
+  animation: ledShiftFlash 0.1s ease-in-out infinite;
+}
+
+/* Tab entrance velocity zoom */
+@keyframes tabVelocityEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.99) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-tab-entrance {
+  animation: tabVelocityEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered Card Entrance Animation */
+@keyframes f1CardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-entrance {
+  animation: f1CardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.delay-75 { animation-delay: 75ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-225 { animation-delay: 225ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Telemetry Card Depth & Hover Elevation */
+.f1-card {
+  background: #101216;
+  border: 1px solid #1E232B;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.f1-card:hover {
+  border-color: #2D3442;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 0 16px -2px rgba(0, 229, 255, 0.06);
+}
+
+/* Smooth Telemetry Numeric Transition */
+.telemetry-transition {
+  transition: color 0.3s ease, transform 0.2s ease, text-shadow 0.3s ease;
+}
+
+/* =========================================================================
+   CINEMATIC F1 MOTORSPORT MOTION BACKGROUND (Red Bull Inspired Palette)
+   ========================================================================= */
+
+/* Perspective Track Flowing Forward toward viewer */
+.f1-perspective-track {
+  background-size: 54px 54px;
+  background-image:
+    linear-gradient(to right, rgba(0, 229, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(225, 6, 0, 0.22) 2px, transparent 2px),
+    radial-gradient(circle at 50% 50%, rgba(11, 30, 61, 0.45) 0%, transparent 80%);
+}
+
+@keyframes f1TrackForward {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 108px;
+  }
+}
+
+.animate-track-forward {
+  animation: f1TrackForward 1.5s linear infinite;
+  will-change: background-position;
+}
+
+/* Ambient Cobalt / Navy Parallax Drift */
+@keyframes f1CobaltDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(35px, -20px, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-cobalt-drift {
+  animation: f1CobaltDrift 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Aerodynamic High-Speed Velocity Streaks */
+@keyframes f1StreakForward {
+  0% {
+    transform: translate3d(-20vw, 0, 0) scaleX(0.3);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.65;
+    transform: translate3d(30vw, 0, 0) scaleX(1.8);
+  }
+  75% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate3d(120vw, 0, 0) scaleX(0.5);
+    opacity: 0;
+  }
+}
+
+.animate-velocity-streak-1 {
+  animation: f1StreakForward 2.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.animate-velocity-streak-2 {
+  animation: f1StreakForward 3.1s cubic-bezier(0.25, 1, 0.5, 1) infinite 0.7s;
+  will-change: transform, opacity;
+}
+
+.animate-velocity-streak-3 {
+  animation: f1StreakForward 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite 1.4s;
+  will-change: transform, opacity;
+}
+
+.animate-velocity-streak-4 {
+  animation: f1StreakForward 3.5s cubic-bezier(0.25, 1, 0.5, 1) infinite 0.3s;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-track-forward,
+  .animate-cobalt-drift,
+  .animate-velocity-streak-1,
+  .animate-velocity-streak-2,
+  .animate-velocity-streak-3,
+  .animate-velocity-streak-4,
+  .animate-f1-track-pass-1,
+  .animate-f1-track-pass-2,
+  .animate-f1-track-pass-3,
+  .animate-f1-track-pass-4,
+  .animate-f1-streak-fast-1,
+  .animate-f1-streak-fast-2,
+  .animate-f1-streak-fast-3,
+  .animate-f1-streak-fast-right-1,
+  .animate-f1-streak-fast-right-2,
+  .animate-f1-streak-fast-right-3 {
+    animation: none !important;
+  }
+}
+
+/* =========================================================================
+   3D PERSPECTIVE RACETRACK CORRIDOR & SPEED STREAKS
+   ========================================================================= */
+
+/* Silverstone Alternating Red & White Kerbs */
+.f1-kerb-pattern {
+  background: repeating-linear-gradient(
+    to bottom,
+    #E10600 0px,
+    #E10600 24px,
+    #FFFFFF 24px,
+    #FFFFFF 48px
+  );
+  box-shadow: 0 0 10px rgba(225, 6, 0, 0.4);
+}
+
+/* Bright Road Lane Boundary Dashes */
+.f1-dash-stripe-left,
+.f1-dash-stripe-right {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.95) 0px,
+    rgba(255, 255, 255, 0.95) 36px,
+    transparent 36px,
+    transparent 64px
+  );
+}
+
+/* Continuous 3D Perspective Road Forward Translation Cycle */
+@keyframes f1TrackPass {
+  0% {
+    transform: translate3d(0, -60%, 0) scaleY(0.4);
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(0, 160%, 0) scaleY(1.9);
+    opacity: 0;
+  }
+}
+
+.animate-f1-track-pass-1,
+.animate-f1-track-pass-2,
+.animate-f1-track-pass-3,
+.animate-f1-track-pass-4 {
+  animation: f1TrackPass 1.4s cubic-bezier(0.38, 0, 0.22, 1) infinite;
+  will-change: transform, opacity;
+}
+
+/* Fast Foreground Speed Streaks (Streaming across screen edges) */
+@keyframes f1StreakFastLeft {
+  0% {
+    transform: translate3d(-100%, 0, 0) scaleX(0.2);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+    transform: translate3d(20vw, 0, 0) scaleX(2.0);
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(105vw, 0, 0) scaleX(0.4);
+    opacity: 0;
+  }
+}
+
+.animate-f1-streak-fast-1 {
+  animation: f1StreakFastLeft 1.4s cubic-bezier(0.2, 0.9, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.animate-f1-streak-fast-2 {
+  animation: f1StreakFastLeft 1.8s cubic-bezier(0.2, 0.9, 0.3, 1) infinite 0.45s;
+  will-change: transform, opacity;
+}
+
+.animate-f1-streak-fast-3 {
+  animation: f1StreakFastLeft 1.6s cubic-bezier(0.2, 0.9, 0.3, 1) infinite 0.9s;
+  will-change: transform, opacity;
+}
+
+/* Fast Speed Streaks (Right-hand side) */
+@keyframes f1StreakFastRight {
+  0% {
+    transform: translate3d(100%, 0, 0) scaleX(0.2);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+    transform: translate3d(-20vw, 0, 0) scaleX(2.0);
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(-105vw, 0, 0) scaleX(0.4);
+    opacity: 0;
+  }
+}
+
+.animate-f1-streak-fast-right-1 {
+  animation: f1StreakFastRight 1.5s cubic-bezier(0.2, 0.9, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.animate-f1-streak-fast-right-2 {
+  animation: f1StreakFastRight 1.9s cubic-bezier(0.2, 0.9, 0.3, 1) infinite 0.5s;
+  will-change: transform, opacity;
+}
+
+.animate-f1-streak-fast-right-3 {
+  animation: f1StreakFastRight 1.7s cubic-bezier(0.2, 0.9, 0.3, 1) infinite 1.0s;
+  will-change: transform, opacity;
+}
+
+/* Midground Telemetry Tracers */
+@keyframes f1TracerMid {
+  0% {
+    transform: translate3d(-40%, 0, 0);
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(40%, 0, 0);
+    opacity: 0.1;
+  }
+}
+
+.animate-f1-tracer-mid-1 {
+  animation: f1TracerMid 3.2s ease-in-out infinite;
+}
+
+.animate-f1-tracer-mid-2 {
+  animation: f1TracerMid 3.8s ease-in-out infinite 1.2s;
+}
+
+/* Distant Ambient Energy Drift */
+@keyframes f1AmbientSlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, -25px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-f1-ambient-slow {
+  animation: f1AmbientSlow 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* =========================================================================
+   MOTORSPORT CARBON FIBER & PHYSICAL TOGGLE SWITCHBOARD STYLING
+   Directly matching F1 race-engineering cockpit switchboards
+   ========================================================================= */
+
+/* High-Definition 2x2 Twill Carbon Fiber Weave with automotive clearcoat */
+.f1-carbon-fiber-panel {
+  background-color: #0b0d13;
+  background-image: 
+    linear-gradient(45deg, rgba(0, 0, 0, 0.45) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.45) 75%),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.45) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.45) 75%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px, 100% 100%;
+  background-position: 0 0, 4px 4px, 0 0, 4px 4px, 0 0;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.8),
+    0 12px 32px rgba(0, 0, 0, 0.85);
+}
+
+/* Motorsport Chamfer Cutouts */
+.f1-trapezoid-panel {
+  clip-path: polygon(14px 0%, calc(100% - 14px) 0%, 100% 100%, 0% 100%);
+}
+
+.f1-wing-panel {
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+}
+
+/* Machined Allen / Hex Head Bolt */
+.f1-hex-bolt {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #A0AEC0, #4A5568 55%, #1A202C 95%);
+  box-shadow: 
+    0 1.5px 3px rgba(0, 0, 0, 0.9),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.f1-hex-bolt::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: #0D1117;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.95);
+}
+
+/* Physical Toggle Switch Bat Animation & Positioning */
+.f1-toggle-lever {
+  transform-origin: 50% 85%;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+  will-change: transform;
+}
+
+/* Inactive state: pointing UP */
+.f1-toggle-lever-up {
+  transform: rotate(-14deg) translateY(-2px);
+}
+
+/* Active state: flipped DOWN towards driver */
+.f1-toggle-lever-down {
+  transform: rotate(26deg) translateY(5px);
+}
+
+/* =========================================================================
+   SUPERCAR FIGHTER-JET FLIP-GUARD SWITCH STYLING
+   Directly matching Lamborghini / Supercar missile-launch cockpit consoles
+   ========================================================================= */
+
+/* Machined Outer Switch Station Housing */
+.supercar-switch-housing {
+  background: linear-gradient(180deg, #1C222E 0%, #12161F 45%, #0B0E14 100%);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.9),
+    0 6px 18px rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(55, 65, 81, 0.7);
+}
+
+/* Polished Chrome Mirror Bezel */
+.supercar-chrome-bezel {
+  background: linear-gradient(135deg, #F8FAFC 0%, #94A3B8 22%, #334155 48%, #E2E8F0 72%, #1E293B 100%);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.85),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.95),
+    0 4px 10px rgba(0, 0, 0, 0.9);
+}
+
+/* 3D Anodized Flip-Up Safety Hood (Fighter-Jet / Supercar Guard) */
+.supercar-flip-guard {
+  transform-origin: 50% 0%;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.25s ease;
+  will-change: transform;
+}
+
+/* Active State: Flip Guard raised back / open, exposing glowing button */
+.supercar-flip-guard-open {
+  transform: perspective(600px) rotateX(-54deg) translateY(-12px) scale(1.04);
+}
+
+/* Inactive State: Guard lowered in armed position */
+.supercar-flip-guard-closed {
+  transform: perspective(600px) rotateX(0deg) translateY(0px) scale(1);
+}
+
+/* =========================================================================
+   COMPACT CIRCULAR ROTARY CONTROLS (IMAGE 2 TARGET DESIGN)
+   Precision motorsport rotary knobs with calibrated index notches & neon arcs
+   ========================================================================= */
+
+/* Machined Outer Rotary Bezel (Gunmetal / Dark Titanium Knurled Rim) */
+.f1-rotary-bezel {
+  background: radial-gradient(circle at 35% 30%, #374151 0%, #1F2937 40%, #0F141C 85%);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.9),
+    0 3px 8px rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(75, 85, 99, 0.65);
+}
+
+/* Inner Recessed Dark Acrylic Cap with Polished Chrome Bevel */
+.f1-rotary-cap {
+  background: radial-gradient(circle at 40% 35%, #1E2530 0%, #0E1218 60%, #06080C 100%);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+  will-change: transform;
+}
+
+/* Rotary Mechanical Actuation Angle */
+.f1-rotary-active {
+  transform: rotate(32deg) scale(1.02);
+}
+
+.f1-rotary-inactive {
+  transform: rotate(0deg) scale(1);
+}
+
+/* =========================================================================
+   HERO CINEMATIC DRIFT BACKGROUND ANIMATION (6.5s Seamless Loop)
+   ========================================================================= */
+
+/* Camera Tracking Pan & Sway */
+@keyframes heroCameraTrack {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  28% {
+    transform: scale(1.06) translate3d(-12px, -5px, 0);
+  }
+  62% {
+    transform: scale(1.05) translate3d(10px, 3px, 0);
+  }
+  100% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+}
+
+.animate-hero-camera-track {
+  animation: heroCameraTrack 6.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+/* Car Controlled Drift Yaw Sequence */
+@keyframes heroCarDriftYaw {
+  0% {
+    /* Corner approach */
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  24% {
+    /* Corner entry & suspension load */
+    transform: translate3d(-4px, 3px, 0) rotate(-0.9deg);
+  }
+  48% {
+    /* Full apex power drift: rear steps out, counter-steer slip angle */
+    transform: translate3d(8px, -4px, 0) rotate(-2.4deg);
+  }
+  72% {
+    /* Snap-back recovery into straight line */
+    transform: translate3d(2px, 1px, 0) rotate(0.6deg);
+  }
+  100% {
+    /* Smooth exit & continuation */
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+.animate-hero-car-drift {
+  animation: heroCarDriftYaw 6.5s cubic-bezier(0.38, 0.04, 0.62, 0.96) infinite;
+  will-change: transform;
+}
+
+/* High-Speed Track Surface Flow Beneath Car */
+@keyframes heroTrackFlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(-140px, 85px, 0) scale(1.15);
+  }
+}
+
+.animate-hero-track-flow {
+  animation: heroTrackFlow 1.2s linear infinite;
+  will-change: transform;
+}
+
+/* Passing Light Streaks & Wet Surface Reflection Lines */
+@keyframes heroSpeedStreak {
+  0% {
+    transform: translate3d(35vw, -25vh, 0) scaleX(0.25);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(-55vw, 40vh, 0) scaleX(1.3);
+    opacity: 0;
+  }
+}
+
+.animate-hero-streak-1 {
+  animation: heroSpeedStreak 1.8s cubic-bezier(0.15, 0.85, 0.35, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.animate-hero-streak-2 {
+  animation: heroSpeedStreak 2.3s cubic-bezier(0.15, 0.85, 0.35, 1) infinite 0.7s;
+  will-change: transform, opacity;
+}
+
+.animate-hero-streak-3 {
+  animation: heroSpeedStreak 1.5s cubic-bezier(0.15, 0.85, 0.35, 1) infinite 1.2s;
+  will-change: transform, opacity;
+}
+
+/* Tyre Smoke Volume Breathing During Drift Phase */
+@keyframes heroSmokePulse {
+  0%, 20% {
+    opacity: 0.12;
+    transform: scale(0.96);
+  }
+  45%, 68% {
+    opacity: 0.45;
+    transform: scale(1.03);
+  }
+  88%, 100% {
+    opacity: 0.12;
+    transform: scale(0.96);
+  }
+}
+
+.animate-hero-smoke-pulse {
+  animation: heroSmokePulse 6.5s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Wheel Spin & High-RPM Rotational Motion Blur */
+@keyframes f1WheelSpinFast {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+.animate-f1-wheel-spin {
+  animation: f1WheelSpinFast 0.065s linear infinite;
+  will-change: transform;
+}
+
+@keyframes f1WheelShimmer {
+  0%, 100% {
+    opacity: 0.55;
+    filter: drop-shadow(0 0 6px rgba(255, 42, 26, 0.7));
+  }
+  50% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 12px rgba(255, 42, 26, 0.95));
+  }
+}
+
+.animate-f1-wheel-shimmer {
+  animation: f1WheelShimmer 0.12s ease-in-out infinite;
+}
+
+/* High-Speed Track Surface Optical Flow */
+@keyframes f1RoadSurfaceRush {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -260px 150px;
+  }
+}
+
+.animate-f1-road-surface-rush {
+  animation: f1RoadSurfaceRush 0.28s linear infinite;
+  will-change: background-position;
+}
+
+/* High-Speed Kerb Chevron Stream */
+@keyframes f1KerbChevronRush {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -180px 105px;
+  }
+}
+
+.animate-f1-kerb-rush {
+  animation: f1KerbChevronRush 0.16s linear infinite;
+  will-change: background-position;
+}
+
+/* High-Frequency Chassis Road Chatter (F1 suspension response at 280 km/h) */
+@keyframes f1ChassisChatter {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 0.6px, 0);
+  }
+  100% {
+    transform: translate3d(0, -0.4px, 0);
+  }
+}
+
+.animate-f1-chassis-chatter {
+  animation: f1ChassisChatter 0.045s linear infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-camera-track,
+  .animate-hero-car-drift,
+  .animate-hero-track-flow,
+  .animate-hero-streak-1,
+  .animate-hero-streak-2,
+  .animate-hero-streak-3,
+  .animate-hero-smoke-pulse,
+  .animate-f1-wheel-spin,
+  .animate-f1-wheel-shimmer,
+  .animate-f1-road-surface-rush,
+  .animate-f1-kerb-rush,
+  .animate-f1-chassis-chatter {
+    animation: none !important;
+  }
+}
+

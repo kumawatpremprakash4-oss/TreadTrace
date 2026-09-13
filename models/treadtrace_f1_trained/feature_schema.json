@@ -1,0 +1,61 @@
+{
+  "model_name": "TreadTrace F1 Huber Degradation Engine",
+  "inputs": [
+    {
+      "name": "tyre_age",
+      "type": "float",
+      "description": "Accumulated laps on current tyre set",
+      "provenance": "RAW_FASTF1_TIMING_APP"
+    },
+    {
+      "name": "tyre_compound",
+      "type": "string",
+      "values": [
+        "SOFT",
+        "MEDIUM",
+        "HARD"
+      ],
+      "description": "Pirelli tyre compound",
+      "provenance": "RAW_FASTF1_TIMING_APP"
+    },
+    {
+      "name": "lap_number",
+      "type": "int",
+      "description": "Race lap counter",
+      "provenance": "RAW_FASTF1_LAPS"
+    },
+    {
+      "name": "lap_time_seconds",
+      "type": "float",
+      "description": "Observed lap time in seconds",
+      "provenance": "RAW_FASTF1_LAPS"
+    },
+    {
+      "name": "track_temperature",
+      "type": "float",
+      "unit": "celsius",
+      "description": "Track surface temperature",
+      "provenance": "RAW_FASTF1_WEATHER"
+    },
+    {
+      "name": "estimated_fuel_load_kg",
+      "type": "float",
+      "unit": "kg",
+      "description": "Remaining race fuel load",
+      "provenance": "ESTIMATED_TREADTRACE_FUEL_MODEL"
+    },
+    {
+      "name": "estimated_track_evo_sec",
+      "type": "float",
+      "unit": "seconds",
+      "description": "Rubber evolution grip improvement",
+      "provenance": "ESTIMATED_TREADTRACE_EVO_MODEL"
+    }
+  ],
+  "target": {
+    "name": "estimated_tyre_degradation_sec",
+    "type": "float",
+    "unit": "seconds",
+    "description": "True isolated tyre degradation pace penalty relative to baseline pace"
+  }
+}
