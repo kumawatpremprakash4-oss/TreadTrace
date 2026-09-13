@@ -41,10 +41,10 @@ class ConfounderEngine:
             for comp in ["SOFT", "MEDIUM", "HARD"]:
                 comp_valid = [l for l in valid_laps if l.get("compound") == comp]
                 if comp_valid:
-                    fuels = np.array([l["fuel_load"] * self.fuel_coef for l in comp_valid])
-                    evos = np.array([-self.max_track_evo * (1.0 - math.exp(-0.048 * l["lap_number"])) for l in comp_valid])
-                    raw_times = np.array([l["lap_time"] for l in comp_valid])
-                    ages = np.array([l["tyre_age"] for l in comp_valid])
+                    fuels = np.array([float(l.get("fuel_load", 30.0)) * self.fuel_coef for l in comp_valid])
+                    evos = np.array([-self.max_track_evo * (1.0 - math.exp(-0.048 * float(l.get("lap_number", 1)))) for l in comp_valid])
+                    raw_times = np.array([float(l.get("lap_time", 90.0)) for l in comp_valid])
+                    ages = np.array([float(l.get("tyre_age", 1)) for l in comp_valid])
 
                     # Subtract environmental/mass confounders
                     clean_pace = raw_times - fuels - evos

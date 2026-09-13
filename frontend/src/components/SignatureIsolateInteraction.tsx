@@ -85,7 +85,7 @@ export const SignatureIsolateInteraction: React.FC<SignatureIsolateInteractionPr
         <div className="mt-4 pt-4 border-t border-[#1E232B] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-mono animate-fadeIn">
           <div className="p-2.5 rounded border transition-all bg-[#17191D] border-[#00E5FF]/40 text-white">
             <span className="text-[10px] text-[#606775] block">FUEL WEIGHT ISOLATED</span>
-            <span className="font-bold text-[#00E5FF]">+{fuelSens.toFixed(4)} s / kg</span>
+            <span className="font-bold text-[#00E5FF]">+{((fuelSens ?? 0.033)).toFixed(4)} s / kg</span>
           </div>
 
           <div className={`p-2.5 rounded border transition-all ${
@@ -103,7 +103,7 @@ export const SignatureIsolateInteraction: React.FC<SignatureIsolateInteractionPr
               : "bg-[#08090B] border-[#222733] text-[#606775]"
           }`}>
             <span className="text-[10px] text-[#606775] block">TRACK RUBBER DECOUPLED</span>
-            <span className="font-bold text-[#00E676]">-{trackEvoGain.toFixed(2)}s Grip Shift</span>
+            <span className="font-bold text-[#00E676]">-{(trackEvoGain ?? 0.55).toFixed(2)}s Grip Shift</span>
           </div>
 
           <div className={`p-2.5 rounded border transition-all ${
@@ -112,7 +112,7 @@ export const SignatureIsolateInteraction: React.FC<SignatureIsolateInteractionPr
               : "bg-[#08090B] border-[#222733] text-[#606775]"
           }`}>
             <span className="text-[10px] text-[#FF2A1A] block font-bold">TRUE MECHANICAL DEG</span>
-            <span className="font-black text-[#FF2A1A] text-sm">+{degRate.toFixed(4)} s / LAP</span>
+            <span className="font-black text-[#FF2A1A] text-sm">+{(degRate ?? 0.041).toFixed(4)} s / LAP</span>
           </div>
         </div>
       )}

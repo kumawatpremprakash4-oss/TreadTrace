@@ -233,19 +233,21 @@ class VehicleDigitalTwin:
         laps = session_data.get("laps", [])
         session_id = session_data.get("session_id", "FP2-SILVERSTONE-2026")
 
+        is_user_data = session_data.get("provenance") == "USER UPLOADED DATA" or str(session_id).startswith("UPLOAD-")
+
         # Determine target lap
         if lap_number is None:
-            # Default to lap 17 for demonstration (highlights RL critical, FR warning, FL/RR normal)
-            lap_number = 17
+            # For user uploaded sessions default to lap 1 or first lap; for demonstration default to lap 17
+            lap_number = 1 if is_user_data else 17
 
         # Retrieve lap details if available
         matched_laps = [l for l in laps if l.get("lap_number") == lap_number]
-        target_lap = matched_laps[0] if matched_laps else (laps[min(lap_number - 1, len(laps) - 1)] if laps else {})
+        target_lap = matched_laps[0] if matched_laps else (laps[min(max(0, lap_number - 1), len(laps) - 1)] if laps else {})
 
         compound = target_lap.get("compound", "MEDIUM")
         # In tyre wear analysis, tyre_age is stint laps accumulated on this set
         tyre_age = target_lap.get("tyre_age", lap_number)
-        if lap_number == 17 and tyre_age < 15:
+        if not is_user_data and lap_number == 17 and tyre_age < 15:
             # Calibrate demonstration baseline to lap 17 of tyre life
             tyre_age = 17
             track_temp = 40.5

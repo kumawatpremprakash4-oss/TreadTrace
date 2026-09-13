@@ -6,12 +6,16 @@ interface SessionAnalyzerPageProps {
   session: SessionMeta | null;
   laps: LapData[];
   onUploadSession: (file: File) => void;
+  availableSessions?: SessionMeta[];
+  onSelectSession?: (sessionId: string) => void;
 }
 
 export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
   session,
   laps,
   onUploadSession,
+  availableSessions = [],
+  onSelectSession,
 }) => {
   const [filterCompound, setFilterCompound] = useState<string>("ALL");
   const [filterValidity, setFilterValidity] = useState<string>("ALL");
@@ -84,19 +88,36 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
             <h1 className="text-lg font-black uppercase text-white tracking-tight">
               SESSION FORENSICS
             </h1>
-            <span className="px-2 py-0.5 rounded bg-[#17191D] border border-[#222733] text-[#00E5FF] text-[10px] font-bold">
-              {session?.session_id || "FP2-SILVERSTONE-2026"}
-            </span>
+            {availableSessions && availableSessions.length > 1 ? (
+              <div className="flex items-center space-x-1.5">
+                <span className="text-[10px] text-[#606775] uppercase">ACTIVE:</span>
+                <select
+                  value={session?.session_id || ""}
+                  onChange={(e) => onSelectSession?.(e.target.value)}
+                  className="bg-[#17191D] border border-[#363E4F] hover:border-[#00E5FF] text-[#00E5FF] text-[11px] font-bold px-2 py-0.5 rounded cursor-pointer transition-all outline-none"
+                >
+                  {availableSessions.map((s) => (
+                    <option key={s.session_id} value={s.session_id} className="bg-[#101216] text-white">
+                      {s.session_id} ({s.total_laps} LAPS) {s.provenance === "USER UPLOADED DATA" ? "• UPLOADED" : "• DEMO"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <span className="px-2 py-0.5 rounded bg-[#17191D] border border-[#222733] text-[#00E5FF] text-[10px] font-bold">
+                {session?.session_id || "FP2-SILVERSTONE-2026"}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Upload Custom Telemetry */}
         <label className="flex items-center space-x-2 px-3.5 py-2 rounded bg-[#17191D] hover:bg-[#1E232B] text-white text-xs font-bold cursor-pointer border border-[#363E4F] transition-all self-start md:self-center">
           <Upload className="w-3.5 h-3.5 text-[#00E5FF]" />
-          <span>INGEST TELEMETRY (CSV / JSON)</span>
+          <span>INGEST TELEMETRY (CSV / JSON / XLSX)</span>
           <input
             type="file"
-            accept=".csv,.json"
+            accept=".csv,.json,.xlsx"
             className="hidden"
             onChange={(e) => {
               if (e.target.files?.[0]) onUploadSession(e.target.files[0]);
@@ -174,7 +195,9 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
                       <td className="py-2.5 px-3 text-[#9A9FA8]">S{lap.stint_id}</td>
                       <td className="py-2.5 px-3">{getCompoundBadge(lap.compound)}</td>
                       <td className="py-2.5 px-3 text-[#9A9FA8]">{lap.tyre_age}</td>
-                      <td className="py-2.5 px-3 text-white font-bold">{lap.lap_time.toFixed(3)}s</td>
+                      <td className="py-2.5 px-3 text-white font-bold">
+                        {typeof lap.lap_time === "number" ? lap.lap_time.toFixed(3) : lap.lap_time ?? "—"}s
+                      </td>
                       <td className="py-2.5 px-3 text-[#606775]">{lap.fuel_load != null ? `${lap.fuel_load} kg` : '—'}</td>
                       <td className="py-2.5 px-3 text-[#606775]">{lap.track_temperature != null ? `${lap.track_temperature}°C` : '—'}</td>
                       <td className="py-2.5 px-3">{getStatusBadge(lap)}</td>
@@ -219,7 +242,7 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
                 <div className="flex justify-between items-baseline">
                   <span className="text-[#9A9FA8] text-[10px] uppercase">OBSERVED LAP TIME</span>
                   <span className="text-xl font-black text-white font-mono">
-                    {selectedLap.lap_time.toFixed(3)} s
+                    {typeof selectedLap.lap_time === "number" ? selectedLap.lap_time.toFixed(3) : selectedLap.lap_time ?? "—"} s
                   </span>
                 </div>
                 <div className="flex justify-between text-[11px] text-[#606775]">

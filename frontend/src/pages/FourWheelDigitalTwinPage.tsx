@@ -27,12 +27,16 @@ import { Sliders, RefreshCw, Car, Activity, Eye } from "lucide-react";
 
 interface FourWheelDigitalTwinPageProps {
   initialCorner?: CornerPosition;
+  sessionId?: string;
+  maxLaps?: number;
 }
 
 export const FourWheelDigitalTwinPage: React.FC<FourWheelDigitalTwinPageProps> = ({
   initialCorner = "RL",
+  sessionId,
+  maxLaps = 35,
 }) => {
-  const [currentLap, setCurrentLap] = useState<number>(17);
+  const [currentLap, setCurrentLap] = useState<number>(() => Math.min(17, maxLaps || 35));
   const [selectedCorner, setSelectedCorner] = useState<CornerPosition>(initialCorner);
   const [activeTab, setActiveTab] = useState<"ALL" | CornerPosition>("ALL");
 
@@ -45,11 +49,18 @@ export const FourWheelDigitalTwinPage: React.FC<FourWheelDigitalTwinPageProps> =
   const [hoveredPos, setHoveredPos] = useState<CornerPosition | null>(null);
   const [hoverScreenPos, setHoverScreenPos] = useState<{ x: number; y: number } | null>(null);
 
+  // Clamp current lap if maxLaps changes
+  useEffect(() => {
+    if (maxLaps && currentLap > maxLaps) {
+      setCurrentLap(Math.max(1, Math.min(17, maxLaps)));
+    }
+  }, [maxLaps]);
+
   // 1. Fetch Vehicle State (all 4 corners)
   const loadVehicleState = async (lapNum: number) => {
     try {
       setLoadingVehicle(true);
-      const data = await fetchVehicleTyres(undefined, lapNum);
+      const data = await fetchVehicleTyres(sessionId, lapNum);
       setVehicleState(data);
     } catch (err) {
       console.error("Failed to fetch vehicle state:", err);
@@ -62,7 +73,7 @@ export const FourWheelDigitalTwinPage: React.FC<FourWheelDigitalTwinPageProps> =
   const loadCornerDetail = async (corner: CornerPosition, lapNum: number) => {
     try {
       setLoadingCorner(true);
-      const data = await fetchTyreCornerDetail(corner, undefined, lapNum);
+      const data = await fetchTyreCornerDetail(corner, sessionId, lapNum);
       setCornerDetail(data);
     } catch (err) {
       console.error(`Failed to fetch detail for ${corner}:`, err);
@@ -73,11 +84,11 @@ export const FourWheelDigitalTwinPage: React.FC<FourWheelDigitalTwinPageProps> =
 
   useEffect(() => {
     loadVehicleState(currentLap);
-  }, [currentLap]);
+  }, [currentLap, sessionId]);
 
   useEffect(() => {
     loadCornerDetail(selectedCorner, currentLap);
-  }, [selectedCorner, currentLap]);
+  }, [selectedCorner, currentLap, sessionId]);
 
   const handleSelectCorner = (pos: CornerPosition) => {
     setSelectedCorner(pos);
@@ -135,16 +146,16 @@ export const FourWheelDigitalTwinPage: React.FC<FourWheelDigitalTwinPageProps> =
           <input
             type="range"
             min={1}
-            max={35}
-            value={currentLap}
+            max={Math.max(1, maxLaps || 35)}
+            value={Math.min(currentLap, Math.max(1, maxLaps || 35))}
             onChange={(e) => setCurrentLap(parseInt(e.target.value))}
             className="w-full h-1.5 bg-[#1E232B] rounded-lg appearance-none cursor-pointer accent-[#E10600]"
           />
 
           <div className="flex justify-between text-[10px] text-[#606775]">
-            <span>L1 (FRESH)</span>
-            <span className="text-[#FFB000] font-bold">L17 (DEMO SCENARIO)</span>
-            <span>L35 (CLIFF)</span>
+            <span>L1 (START)</span>
+            <span className="text-[#00E5FF] font-bold">L{currentLap} (ACTIVE)</span>
+            <span>L{Math.max(1, maxLaps || 35)} (END)</span>
           </div>
         </div>
       </div>

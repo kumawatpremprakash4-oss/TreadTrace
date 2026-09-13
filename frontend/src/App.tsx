@@ -50,6 +50,7 @@ export function App() {
   const [judgeMode, setJudgeMode] = useState<boolean>(false);
   const [judgeStepIndex, setJudgeStepIndex] = useState<number>(0);
 
+  const [availableSessions, setAvailableSessions] = useState<SessionMeta[]>([]);
   const [session, setSession] = useState<SessionMeta | null>(null);
   const [laps, setLaps] = useState<LapData[]>([]);
   const [confounders, setConfounders] = useState<ConfounderSummary | null>(null);
@@ -58,28 +59,65 @@ export function App() {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  /** Non-blocking upload status toast — replaces blocking window.alert() */
+  const [uploadNotification, setUploadNotification] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const loadData = async (targetSessionId?: string) => {
     try {
       setLoading(true);
       const sessions = await fetchSessions();
-      const activeId = targetSessionId || sessions[0]?.session_id || "FP2-SILVERSTONE-2026";
+      setAvailableSessions(sessions);
 
-      const [sessDetails, confData, degData, twins, valData] = await Promise.all([
-        fetchSessionDetails(activeId),
+      // Determine active session:
+      // 1. Explicit targetSessionId passed to loadData
+      // 2. Saved session in localStorage (if it exists in sessions list)
+      // 3. Most recent uploaded session (if any exist)
+      // 4. First session from sessions list
+      // 5. Default "FP2-SILVERSTONE-2026"
+      const savedSessionId = localStorage.getItem("treadtrace_active_session");
+      const savedExists = savedSessionId && sessions.some((s) => s.session_id === savedSessionId);
+      const latestUploaded = [...sessions].reverse().find((s) => s.session_id.startsWith("UPLOAD-"));
+
+      const activeId =
+        targetSessionId ||
+        (savedExists ? savedSessionId : null) ||
+        latestUploaded?.session_id ||
+        sessions[0]?.session_id ||
+        "FP2-SILVERSTONE-2026";
+
+      localStorage.setItem("treadtrace_active_session", activeId);
+
+      // Fetch session details first (required) — fail fast if missing.
+      const sessDetails = await fetchSessionDetails(activeId);
+      setSession(sessDetails);
+      setLaps(sessDetails.laps || []);
+
+      // Analysis endpoints (non-critical): use allSettled so one failure
+      // doesn't wipe all state and black-screen the dashboard.
+      const [confResult, degResult, twinsResult, valResult] = await Promise.allSettled([
         fetchConfounderAnalysis(activeId),
         fetchDegradationAnalysis(activeId),
         fetchTyreTwins(),
         fetchRaceValidation("RACE-SILVERSTONE-2026"),
       ]);
 
-      setSession(sessDetails);
-      setLaps(sessDetails.laps || []);
-      setConfounders(confData);
-      setDegradation(degData);
-      setTyreTwins(twins);
-      setValidation(valData);
+      if (confResult.status === "fulfilled") setConfounders(confResult.value);
+      else console.warn("[TreadTrace] Confounder analysis unavailable:", confResult.reason);
+
+      if (degResult.status === "fulfilled") setDegradation(degResult.value);
+      else console.warn("[TreadTrace] Degradation analysis unavailable:", degResult.reason);
+
+      if (twinsResult.status === "fulfilled") setTyreTwins(twinsResult.value);
+      else console.warn("[TreadTrace] Tyre twins unavailable:", twinsResult.reason);
+
+      if (valResult.status === "fulfilled") setValidation(valResult.value);
+      else console.warn("[TreadTrace] Race validation unavailable:", valResult.reason);
+
     } catch (err) {
-      console.error("Error loading TreadTrace telemetry:", err);
+      console.error("[TreadTrace] Critical load error:", err);
     } finally {
       setLoading(false);
     }
@@ -106,14 +144,21 @@ export function App() {
   };
 
   const handleUploadSession = async (file: File) => {
+    setUploadNotification(null);
     try {
       setLoading(true);
       const result = await uploadSession(file);
+      localStorage.setItem("treadtrace_active_session", result.session_id);
       await loadData(result.session_id);
-      alert(`Custom telemetry session ${result.session_id} uploaded and analyzed successfully! (${result.total_laps} laps ingested)`);
+      setCurrentTab("analyzer");
+      const msg = `Session ${result.session_id} uploaded and analysed — ${result.total_laps} laps ingested.`;
+      setUploadNotification({ type: "success", text: msg });
+      // Auto-dismiss success toast after 6 seconds
+      setTimeout(() => setUploadNotification(null), 6000);
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Error uploading session file. Please ensure file is valid CSV or JSON.");
+      console.error("[TreadTrace] Upload error:", err);
+      const errMsg = (err instanceof Error ? err.message : String(err)) || "Check file format (CSV / JSON / XLSX).";
+      setUploadNotification({ type: "error", text: `Upload failed: ${errMsg}` });
     } finally {
       setLoading(false);
     }
@@ -142,6 +187,28 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#07080A] text-[#F5F5F5] flex flex-col font-sans select-none relative overflow-x-hidden">
+
+      {/* Non-blocking upload status toast (replaces window.alert) */}
+      {uploadNotification && (
+        <div
+          role="status"
+          className={`fixed top-4 right-4 z-[9999] max-w-sm w-full px-5 py-3.5 rounded-lg text-[11px] font-bold font-mono shadow-2xl border flex items-start justify-between gap-3 animate-tab-entrance ${
+            uploadNotification.type === "success"
+              ? "bg-[#00E676]/10 border-[#00E676]/50 text-[#00E676]"
+              : "bg-[#E10600]/10 border-[#E10600]/50 text-[#FF2A1A]"
+          }`}
+        >
+          <span className="leading-relaxed flex-1">{uploadNotification.text}</span>
+          <button
+            onClick={() => setUploadNotification(null)}
+            className="text-current opacity-60 hover:opacity-100 text-base leading-none flex-shrink-0 cursor-pointer"
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Background Motorsport Motion Environment (Fixed behind content) */}
       <MotorsportMotionBackground />
 
@@ -209,25 +276,43 @@ export function App() {
         ) : (
           <>
             {(currentTab === "vehicle_twin" || currentTab === "tyres") && (
-              <FourWheelDigitalTwinPage initialCorner="RL" />
+              <FourWheelDigitalTwinPage
+                initialCorner="RL"
+                sessionId={session?.session_id}
+                maxLaps={laps.length || session?.total_laps || 35}
+              />
             )}
             {(currentTab === "tyres/front-left" || currentTab === "FL") && (
-              <TyreFrontLeftPage />
+              <TyreFrontLeftPage
+                sessionId={session?.session_id}
+                maxLaps={laps.length || session?.total_laps || 35}
+              />
             )}
             {(currentTab === "tyres/front-right" || currentTab === "FR") && (
-              <TyreFrontRightPage />
+              <TyreFrontRightPage
+                sessionId={session?.session_id}
+                maxLaps={laps.length || session?.total_laps || 35}
+              />
             )}
             {(currentTab === "tyres/rear-left" || currentTab === "RL") && (
-              <TyreRearLeftPage />
+              <TyreRearLeftPage
+                sessionId={session?.session_id}
+                maxLaps={laps.length || session?.total_laps || 35}
+              />
             )}
             {(currentTab === "tyres/rear-right" || currentTab === "RR") && (
-              <TyreRearRightPage />
+              <TyreRearRightPage
+                sessionId={session?.session_id}
+                maxLaps={laps.length || session?.total_laps || 35}
+              />
             )}
             {currentTab === "analyzer" && (
               <SessionAnalyzerPage
                 session={session}
                 laps={laps}
                 onUploadSession={handleUploadSession}
+                availableSessions={availableSessions}
+                onSelectSession={(id: string) => loadData(id)}
               />
             )}
             {currentTab === "confounders" && (
