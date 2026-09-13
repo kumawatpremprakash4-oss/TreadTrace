@@ -7,7 +7,10 @@
 [![Node](https://img.shields.io/badge/node-18%2B%20%7C%2024-green.svg)](#installation)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-19.2-61DAFB.svg)](https://react.dev)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://treadtrace-frontend-ucqc.onrender.com/)
 [![Data Provenance](https://img.shields.io/badge/provenance-SYNTHETIC%20DEMONSTRATION%20DATA-orange.svg)](#data-pipeline)
+
+> 🚀 **Live Deployed Application**: [https://treadtrace-frontend-ucqc.onrender.com/](https://treadtrace-frontend-ucqc.onrender.com/)
 
 ---
 
@@ -1106,6 +1109,9 @@ Model fitting occurs dynamically upon session initialization and when telemetry 
 ---
 
 ## Deployment
+
+### Live Application
+* **Production Web Service**: [https://treadtrace-frontend-ucqc.onrender.com/](https://treadtrace-frontend-ucqc.onrender.com/)
 
 ### Containerization (Production Architecture Recommendation)
 To deploy TreadTrace to containerized cloud environments (e.g. AWS ECS, GCP Cloud Run, Kubernetes):
