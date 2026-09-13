@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Filter, Upload, AlertTriangle, CheckCircle, Search, ShieldCheck, Activity, Terminal } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Upload, CheckCircle, Terminal } from "lucide-react";
 import { LapData, SessionMeta } from "../types";
 
 interface SessionAnalyzerPageProps {
@@ -16,6 +16,13 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
   const [filterCompound, setFilterCompound] = useState<string>("ALL");
   const [filterValidity, setFilterValidity] = useState<string>("ALL");
   const [selectedLap, setSelectedLap] = useState<LapData | null>(laps[0] || null);
+
+  // Reset selected lap whenever a new session is loaded (after upload or refresh)
+  useEffect(() => {
+    setSelectedLap(laps[0] || null);
+    setFilterCompound("ALL");
+    setFilterValidity("ALL");
+  }, [laps]);
 
   const filteredLaps = laps.filter((lap) => {
     if (filterCompound !== "ALL" && lap.compound !== filterCompound) return false;
@@ -168,8 +175,8 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
                       <td className="py-2.5 px-3">{getCompoundBadge(lap.compound)}</td>
                       <td className="py-2.5 px-3 text-[#9A9FA8]">{lap.tyre_age}</td>
                       <td className="py-2.5 px-3 text-white font-bold">{lap.lap_time.toFixed(3)}s</td>
-                      <td className="py-2.5 px-3 text-[#606775]">{lap.fuel_load} kg</td>
-                      <td className="py-2.5 px-3 text-[#606775]">{lap.track_temperature}°C</td>
+                      <td className="py-2.5 px-3 text-[#606775]">{lap.fuel_load != null ? `${lap.fuel_load} kg` : '—'}</td>
+                      <td className="py-2.5 px-3 text-[#606775]">{lap.track_temperature != null ? `${lap.track_temperature}°C` : '—'}</td>
                       <td className="py-2.5 px-3">{getStatusBadge(lap)}</td>
                       <td className="py-2.5 px-3">
                         {lap.used_in_model ? (
@@ -217,7 +224,7 @@ export const SessionAnalyzerPage: React.FC<SessionAnalyzerPageProps> = ({
                 </div>
                 <div className="flex justify-between text-[11px] text-[#606775]">
                   <span>{selectedLap.compound} • AGE {selectedLap.tyre_age} LAPS</span>
-                  <span>FUEL: {selectedLap.fuel_load} KG</span>
+                  <span>FUEL: {selectedLap.fuel_load != null ? `${selectedLap.fuel_load} KG` : '—'}</span>
                 </div>
               </div>
 

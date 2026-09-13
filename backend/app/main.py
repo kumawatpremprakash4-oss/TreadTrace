@@ -311,6 +311,60 @@ async def upload_session(file: UploadFile = File(...)):
     content = await file.read()
     filename = file.filename.lower()
     
+    # -----------------------------------------------------------------------
+    # Column Alias Normalization Map
+    # Maps all known UI-export and canonical column names to internal keys.
+    # -----------------------------------------------------------------------
+    COLUMN_ALIASES: Dict[str, List[str]] = {
+        "lap_number":       ["lap_number", "LAP", "Lap", "lap"],
+        "stint_id":         ["stint_id", "STINT", "Stint", "stint"],
+        "tyre_age":         ["tyre_age", "AGE", "Age", "age", "stint_lap", "STINT_LAP"],
+        "compound":         ["compound", "COMPOUND", "Compound", "tyre_compound"],
+        "lap_time":         ["lap_time", "LAPTIME", "LAP TIME", "LapTime", "Lap Time", "lap time"],
+        "fuel_load":        ["fuel_load", "FUEL", "Fuel", "fuel", "fuel_kg"],
+        "track_temperature":["track_temperature", "TRACK °C", "TRACK_C", "Track °C", "Track_C", "track_temp", "TrackTemp"],
+        "source_status":    ["STATUS", "Status", "status"],
+        "source_model_used":["MODEL USED", "MODEL_USED", "Model Used", "model_used"],
+        "traffic_level":    ["traffic_level", "TRAFFIC", "Traffic", "traffic"],
+        "clean_air":        ["clean_air", "CLEAN_AIR", "Clean Air"],
+        "yellow_flag":      ["yellow_flag", "YELLOW_FLAG", "Yellow Flag"],
+    }
+    REQUIRED_FIELDS = ["lap_number", "lap_time"]
+
+    def resolve(row: Dict[str, str], field: str) -> Optional[str]:
+        """Return the first matching value from the row using known aliases."""
+        for alias in COLUMN_ALIASES.get(field, [field]):
+            if alias in row and row[alias].strip() != "":
+                return row[alias].strip()
+        return None
+
+    def normalize_compound(raw: Optional[str]) -> str:
+        if not raw:
+            return "MEDIUM"
+        up = raw.upper()
+        if "SOFT" in up:
+            return "SOFT"
+        if "HARD" in up:
+            return "HARD"
+        if "MEDIUM" in up:
+            return "MEDIUM"
+        return up.split()[0] if up else "MEDIUM"
+
+    def status_to_classification(status: Optional[str]) -> Dict[str, Any]:
+        """Map raw STATUS / MODEL USED columns to internal classification fields."""
+        if not status:
+            return {}
+        s = status.upper().strip()
+        if "VALID" in s:
+            return {"classification": "GREEN_VALID", "used_in_model": True}
+        if "PIT" in s or "OUT-LAP" in s or "IN-LAP" in s:
+            return {"classification": "PIT / OUT-LAP", "used_in_model": False}
+        if "YELLOW" in s:
+            return {"classification": "YELLOW FLAG", "used_in_model": False}
+        if "EXCL" in s:
+            return {"classification": "OUTLIER", "used_in_model": False}
+        return {}
+
     laps = []
     if filename.endswith(".json"):
         data = json.loads(content.decode("utf-8"))
@@ -327,21 +381,89 @@ async def upload_session(file: UploadFile = File(...)):
     elif filename.endswith(".csv"):
         text_stream = io.StringIO(content.decode("utf-8"))
         reader = csv.DictReader(text_stream)
-        for row in reader:
-            stint_lap = int(row.get("stint_lap", 1))
-            laps.append({
-                "lap_number": int(row.get("lap_number", 1)),
-                "stint_id": int(row.get("stint_id", 1)),
-                "stint_lap": stint_lap,
-                "tyre_age": int(row.get("tyre_age", stint_lap)),
-                "compound": row.get("compound", "MEDIUM").upper(),
-                "lap_time": float(row.get("lap_time", 90.0)),
-                "fuel_load": float(row.get("fuel_load", 30.0)),
-                "track_temperature": float(row.get("track_temperature", 38.0)),
-                "traffic_level": int(row.get("traffic_level", 0)),
-                "clean_air": str(row.get("clean_air", "true")).lower() == "true",
-                "yellow_flag": str(row.get("yellow_flag", "false")).lower() == "true",
-            })
+        missing_required: List[str] = []
+        rows = list(reader)
+
+        # Validate required fields exist in at least one alias column
+        if rows:
+            sample = rows[0]
+            for req in REQUIRED_FIELDS:
+                if resolve(sample, req) is None:
+                    missing_required.append(req)
+            if missing_required:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"CSV is missing required fields (no matching alias found): {missing_required}. "
+                           f"Available columns: {list(sample.keys())}"
+                )
+
+        for row_idx, row in enumerate(rows):
+            # --- Required numeric fields ---
+            lap_number_raw = resolve(row, "lap_number")
+            lap_time_raw = resolve(row, "lap_time")
+
+            try:
+                lap_number = int(float(lap_number_raw))
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=422, detail=f"Row {row_idx+1}: invalid lap_number '{lap_number_raw}'")
+            try:
+                lap_time = float(lap_time_raw)
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=422, detail=f"Row {row_idx+1}: invalid lap_time '{lap_time_raw}'")
+
+            # --- Optional fields with safe defaults ---
+            stint_id_raw = resolve(row, "stint_id")
+            stint_id = int(float(stint_id_raw)) if stint_id_raw else 1
+
+            tyre_age_raw = resolve(row, "tyre_age")
+            tyre_age = int(float(tyre_age_raw)) if tyre_age_raw else lap_number
+
+            compound_raw = resolve(row, "compound")
+            compound = normalize_compound(compound_raw)
+
+            fuel_raw = resolve(row, "fuel_load")
+            fuel_load = float(fuel_raw) if fuel_raw else None
+
+            track_raw = resolve(row, "track_temperature")
+            track_temperature = float(track_raw) if track_raw else None
+
+            traffic_raw = resolve(row, "traffic_level")
+            traffic_level = int(float(traffic_raw)) if traffic_raw else 0
+
+            clean_raw = resolve(row, "clean_air")
+            clean_air = str(clean_raw).lower() == "true" if clean_raw else True
+
+            yellow_raw = resolve(row, "yellow_flag")
+            yellow_flag = str(yellow_raw).lower() == "true" if yellow_raw else False
+
+            # --- Build normalized lap dict ---
+            normalized: Dict[str, Any] = {
+                "lap_number": lap_number,
+                "stint_id": stint_id,
+                "stint_lap": tyre_age,   # alias: treat tyre_age as stint_lap for classifier
+                "tyre_age": tyre_age,
+                "compound": compound,
+                "lap_time": lap_time,
+                "traffic_level": traffic_level,
+                "clean_air": clean_air,
+                "yellow_flag": yellow_flag,
+            }
+
+            # Only include fuel/track if uploaded — do not substitute fake defaults
+            if fuel_load is not None:
+                normalized["fuel_load"] = fuel_load
+            if track_temperature is not None:
+                normalized["track_temperature"] = track_temperature
+
+            # Preserve raw status columns for audit trail
+            source_status = resolve(row, "source_status")
+            source_model_used = resolve(row, "source_model_used")
+            if source_status:
+                normalized["source_status"] = source_status
+            if source_model_used:
+                normalized["source_model_used"] = source_model_used
+
+            laps.append(normalized)
     else:
         raise HTTPException(status_code=400, detail="Only .csv and .json files supported.")
 
