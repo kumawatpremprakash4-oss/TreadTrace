@@ -1,0 +1,48 @@
+# Render Blueprint Specification for TreadTrace
+# Reference: https://render.com/docs/blueprint-spec
+
+services:
+  # --------------------------------------------------------------------------
+  # 1. FastAPI Motorsport Telemetry & Digital Twin Backend
+  # --------------------------------------------------------------------------
+  - type: web
+    name: treadtrace-api
+    runtime: python
+    plan: free
+    healthCheckPath: /api/health
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PYTHONPATH
+        value: backend
+      - key: CORS_ORIGINS
+        value: "*"
+
+  # --------------------------------------------------------------------------
+  # 2. React + Vite Frontend Static Site
+  # --------------------------------------------------------------------------
+  - type: web
+    name: treadtrace-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /images/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /sounds/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      - key: VITE_API_URL
+        value: https://treadtrace-api.onrender.com

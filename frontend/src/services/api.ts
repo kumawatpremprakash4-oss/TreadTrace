@@ -15,7 +15,17 @@ import {
   CornerDetailResponse,
 } from "../types";
 
-const API_BASE = "/api";
+// Production Render API base: reads VITE_API_URL or defaults to local proxy "/api"
+let configuredApiUrl = (import.meta.env.VITE_API_URL || "").trim();
+if (configuredApiUrl) {
+  if (!configuredApiUrl.startsWith("http://") && !configuredApiUrl.startsWith("https://")) {
+    configuredApiUrl = `https://${configuredApiUrl}`;
+  }
+  if (!configuredApiUrl.endsWith("/api")) {
+    configuredApiUrl = `${configuredApiUrl.replace(/\/+$/, "")}/api`;
+  }
+}
+const API_BASE = configuredApiUrl || "/api";
 
 export async function fetchSessions(): Promise<SessionMeta[]> {
   const res = await fetch(`${API_BASE}/sessions`);

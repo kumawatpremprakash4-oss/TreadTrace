@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
+import os
 import json
 import csv
 import io
@@ -28,9 +29,16 @@ app = FastAPI(
     description="Isolating true tyre degradation from confounding motorsport practice variables.",
 )
 
+# Configure CORS: defaults to ["*"] for development, or reads comma-separated origins in production
+cors_origins_env = os.getenv("CORS_ORIGINS", "*").strip()
+if cors_origins_env == "*":
+    cors_origins = ["*"]
+else:
+    cors_origins = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
