@@ -49,9 +49,7 @@
 35. [Technical Audit (Claims vs Reality & AI Veracity)](#technical-audit)
 36. [Implementation Status Matrix](#implementation-status)
 37. [Future Roadmap (P0 to P3)](#future-roadmap)
-38. [Final Technical Scorecard](#final-technical-scorecard)
-39. [Audit Summary](#audit-summary)
-40. [License](#license)
+38. [License](#license)
 
 ---
 
@@ -1240,59 +1238,6 @@ CMD ["nginx", "-g", "daemon off;"]
 ### P3 — Long-Term Research & Development
 1. **Gaussian Process Degradation (GPR)**: Implement Gaussian Process Regression with Matérn kernels for non-parametric uncertainty quantification over varying asphalt temperatures.
 2. **PyF1 / FastF1 Open Data Ingestion**: Provide one-click ingestion from public Formula 1 session telemetry via the FastF1 library.
-
----
-
-## Final Technical Scorecard
-
-| Category | Score / 10 | Technical Audit Justification |
-| :--- | :---: | :--- |
-| **Architecture** | **9.5 / 10** | Elegant closed-loop architecture: Practice $\to$ Classifier $\to$ Confounder $\to$ Degradation $\to$ Twin $\to$ Prediction $\to$ Validation $\to$ Memory Update. |
-| **Algorithms** | **9.5 / 10** | Physics-grounded formulation; Huber robust regression eliminates fuel masking; realistic non-linear thermal cliff modeling. |
-| **AI / ML** | **8.5 / 10** | Genuinely trains Scikit-Learn HuberRegressor and LinearRegression models live; no black-box hallucinations. (No deep learning, which is appropriate). |
-| **Data Pipeline** | **9.0 / 10** | Clear separation of stages, robust lap classification, explicit `SYNTHETIC DEMONSTRATION DATA` provenance disclosures. |
-| **Backend** | **9.0 / 10** | Fast, clean FastAPI implementation with Pydantic typing, modular organization, and precomputed caching. |
-| **Frontend** | **9.8 / 10** | Exceptional aesthetic quality; dark motorsport theme; Recharts visualizations; HTML5 Canvas 2D tyre twin; native Web Audio API synthesizer. |
-| **Digital Twin / Simulation** | **9.0 / 10** | Stateful tyre representation tracking heat cycles, RUL, thermal history, and closed-loop post-race recalibration. |
-| **Testing** | **8.5 / 10** | 7 unit tests covering synthetic schema, classification, decomposition, A/B metrics, prediction, and validation; 100% pass rate in 0.33s. |
-| **Security** | **6.5 / 10** | Open CORS, no authentication, lack of upload file size caps. Appropriate for local prototype, but requires hardening for production. |
-| **Reproducibility** | **10.0 / 10** | Completely deterministic execution with fixed random seeds (42 and 101); zero external asset dependencies. |
-| **Scalability** | **7.5 / 10** | Stateless compute routes scale horizontally, but singleton in-memory state requires migration to Redis/PostgreSQL for multi-node deployments. |
-| **Technical Novelty** | **9.5 / 10** | Directly solves the core "slower laps $\ne$ tyre wear" motorsport paradox through explainable confounder decomposition. |
-| **Overall Technical Maturity** | **Advanced MVP** | Production candidate code quality on algorithms and frontend; requires persistent database for full production grade. |
-
----
-
-## Audit Summary
-
-* **What is genuinely implemented**:
-  * Real Scikit-Learn `HuberRegressor` and `LinearRegression` fitting.
-  * Deterministic rule-based lap classification and outlier exclusion.
-  * Closed-form multivariate confounder normalisation (fuel, track evolution, temperature).
-  * Statistically derived 95% confidence intervals from empirical residual standard deviation.
-  * Stateful Tyre Memory digital twin engine with Bayesian wear rate updates.
-  * Multi-compound crossover matrix calculation (Soft vs. Medium vs. Hard).
-  * Post-race validation engine with automated root-cause attribution.
-  * Closed-loop calibration modifying tyre twin wear coefficients.
-  * Native Web Audio API procedural F1 engine synthesizer.
-  * HTML5 Canvas 2D animated rotating tyre twin with dynamic thermal glow.
-  * CSV/JSON telemetry file upload handler.
-  * 7-test automated Python test suite.
-* **What is partially implemented**:
-  * Upload validation (accepts CSV/JSON, but lacks schema-enforced type checks).
-  * Single circuit configuration (parameters hardcoded to Silverstone GP).
-* **What is mocked / synthetic**:
-  * Practice and race telemetry datasets are mathematically generated synthetic demonstrations using published Silverstone F1 physical parameters.
-* **What is theoretical / not implemented**:
-  * No external ACID database (Postgres/Redis); state is in-memory only.
-  * No user authentication or session access controls.
-  * No deep learning / neural network models (by deliberate design).
-* **Biggest technical weakness**:
-  * Lack of persistent database storage (data resets if the backend process is killed).
-* **Biggest technical strength**:
-  * Solves the actual motorsport engineering problem with mathematical rigor: $>90\%$ error reduction by decoupling vehicle mass and track evolution before fitting degradation curves, backed by a closed-loop validation update.
-* **Most important next step**:
-  * Add SQLite / PostgreSQL database persistence for the `TyreMemoryRegistry` and session store.
 
 ---
 
